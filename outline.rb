@@ -1,7 +1,7 @@
 # In BTL - ad_leads_api_wrapper.rb
 
 client = AdLeads::Client.new
-client.create_campaign(options)
+client.build_campaign(options)
 client.verify_campaign(campaign_id)
 client.launch_campaign(campaign_id)
 
@@ -24,7 +24,7 @@ end
 module AdLeads
   class Client
     module Campaign
-      def create_campaign(options)
+      def build_campaign(options)
         create_creative(options['creative_info'])
         create_ad(@last_response['creative_id'], options['ad_info'])
         create_image(@last_response['creative_id'], @last_response['ad_id'], options['image_info'])
