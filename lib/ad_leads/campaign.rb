@@ -1,45 +1,53 @@
 module AdLeads
-  class Campaign < AdLeads::Base
-    include AdLeads::Etag
+  class Client
+    module Campaign
+      # options = {
+      #   'name' => 'test',
+      #   'verticals' =>  82,
+      #   'offerIncentiveCategory' => 5,
+      #   'collectedFields' => 'firstname,lastname,email,companyname',
+      #   'budget' => 50,
+      #   'creativeGroups' => creative_group.id
+      # }
 
-    # params = {
-    #   'name' => 'test',
-    #   'verticals' =>  82,
-    #   'offerIncentiveCategory' => 5,
-    #   'collectedFields' => 'firstname,lastname,email,companyname',
-    #   'budget' => 50,
-    #   'creativeGroups' => creative_group.id
-    # }
-
-    def update!(params)
-      client.post(campaign_path, params)
-    end
-
-    def verify!
-      client.get(verify_campaign_path)
-    end
-
-    def launch!
-      with_etag do
-        client.post(launch_campaign_path, etag: etag)
+      def create_campaign(options)
+        post '/campaigns', options
       end
-    end
 
-    def campaign_path
-      root_path + "/#{id}"
-    end
-    alias :etag_path :campaign_path
+      def update_campaign(id, options)
+        post campaign_path(id), options
+      end
 
-    def launch_campaign_path
-      campaign_path + '/launch'
-    end
+      def verify_campaign(id)
+        get verify_campaign_path(id)
+      end
 
-    def root_path
-      '/campaigns'
-    end
+      def launch_campaign(id)
+        remaining_tries ||= 3
+        post launch_campaign_path(id), etag: campaign_etag(id).headers['Etag']
+      rescue AdLeads::EtagMismatchError
+        remaining_tries -= 1
+        retry unless remaining_tries.zero?
+      end
 
-    def verify_campaign_path
-      campaign_path + '/plan'
+      private
+
+      def campaign_path(id)
+        "/campaigns/#{id}"
+      end
+      alias :campaign_etag_path :campaign_path
+
+      def launch_campaign_path(id)
+        campaign_path(id) + '/launch'
+      end
+
+      def verify_campaign_path(id)
+        campaign_path(id) + '/plan'
+      end
+
+      def campaign_etag(id)
+        get campaign_etag_path(id)
+      end
     end
   end
 end

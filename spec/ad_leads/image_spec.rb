@@ -21,7 +21,7 @@ describe AdLeads::Client::Image do
       client.upload_image(1, 1, 1, file)
     end
 
-    it 'refreshes etag' do
+    it 'gets etag' do
       etag_response = double :response, headers: { 'Etag' => 1 }
       expect(client).to receive(:get).with('/creativegroups/1/creatives/1/images/1').
         and_return(etag_response)
