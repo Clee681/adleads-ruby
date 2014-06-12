@@ -1,10 +1,10 @@
 require 'spec_helper'
+require 'pry'
 
 describe AdLeads::Client do
   let!(:client) { AdLeads::Client.new }
   let(:connection) { client.connection }
-  let(:creative_group_id) { 12858 }
-  let(:token) { '99d3492c-f82e-40c1-ac12-95a3c3326edc' }
+  let(:token) { 'ba29c63f-985a-4c64-a1d4-9455a2f967ad' }
   let(:file) { './spec/fixtures/test.jpg' }
 
   before do
@@ -14,49 +14,50 @@ describe AdLeads::Client do
 
   context 'Network Requests' do
     describe 'Ad Campaign' do
-      xit 'uploads logo image, creates campaign using logo image, verifies and launches ad campaign' do
+      it 'uploads logo image, creates campaign using logo image, verifies and launches ad campaign' do
 
-        params = {
+        options = {
           'name' => 'Creative Group Name',
           'productName' =>  'amazing product',
           'privacyPolicyUrl' => 'http://privacy_url'
         }
 
-        creative_group = AdLeads::CreativeGroup.new
-        creative_group.create!(params)
+        response = client.create_creative_group(options)
+        creative_id = JSON.parse(response.body)['data'].first
 
-        params = {
+        options = {
           'type' => 'Mobile',
           'name' =>  'Ad name',
           'headerText' => 'get your ad on this phone today',
           'bodyText' => 'this is mobile ad body copy'
         }
 
-        ad = AdLeads::Ad.new(creative_group.id)
-        ad.create!(params)
+        response = client.create_ad(creative_id, options)
+        ad_id = JSON.parse(response.body)['data'].first
 
-        params = { 'type' => 'LogoImage' }
+        options = { 'type' => 'LogoImage' }
 
-        image = AdLeads::Image.new( { creative_group_id: creative_group.id, ad_id: ad.id } )
-        image.create!(params)
-        image.upload!(file)
+        response = client.create_image(creative_id, ad_id, options)
+        image_id = JSON.parse(response.body)['data'].first
+        client.upload_image(creative_id, ad_id, image_id, file)
 
-        params = {
+        options = {
           'name' => 'Campaign name',
           'verticals' =>  82,
           'offerIncentiveCategory' => 5,
           'collectedFields' => 'firstname,lastname,email,companyname',
           'budget' => 50,
-          'creativeGroups' => creative_group.id
+          'creativeGroups' => creative_id
         }
 
-        campaign = AdLeads::Campaign.new
-        campaign.create!(params)
-        campaign.verify!
-        campaign.launch!
+        response = client.create_campaign(options)
+        campaign_id = JSON.parse(response.body)['data'].first
 
-        expect(campaign.response.status).to eq(200)
-        expect(JSON.parse(campaign.response.body)['result']).to eq true
+        client.verify_campaign(campaign_id)
+        response = client.launch_campaign(campaign_id)
+
+        expect(response.status).to eq(200)
+        expect(JSON.parse(response.body)['result']).to eq true
       end
     end
   end
