@@ -1,20 +1,16 @@
 module AdLeads
-  class Ad < AdLeads::Base
-    # params = {
-    #         'type' => 'Mobile',
-    #         'name' =>  'test mobile ad',
-    #         'headerText' => 'get your ad on this phone today',
-    #         'bodyText' => 'this is mobile ad body copy'
-    #       }
+  class Client
+    module Ad
+      # options = {
+      #   'type' => 'Mobile',
+      #   'name' =>  'test mobile ad',
+      #   'headerText' => 'get your ad on this phone today',
+      #   'bodyText' => 'this is mobile ad body copy'
+      # }
 
-    attr_accessor :creative_group_id
-
-    def initialize(creative_group_id)
-      @creative_group_id = creative_group_id
-    end
-
-    def root_path
-      "/creativegroups/#{creative_group_id}/creatives"
+      def create_ad(creative_group_id, options)
+        post "/creativegroups/#{creative_group_id}/creatives", options
+      end
     end
   end
 end

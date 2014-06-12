@@ -29,6 +29,23 @@ describe AdLeads::Client do
       connection.stub(:post) { response }
     end
 
+    context 'status: 200' do
+      let(:status) { 200 }
+      it 'sets @last_response' do
+        client.post('foo')
+        expect(client.instance_variable_get(:@last_response)).to eq response
+      end
+    end
+
+    context 'status: 412' do
+      let(:status) { 412 }
+      it 'raises AdLeads::EtagMismatchError' do
+        expect {
+          client.post('foo')
+        }.to raise_error AdLeads::EtagMismatchError
+      end
+    end
+
     context 'status: 500' do
       let(:status) { 500 }
       it 'raises AdLeads::ApiError' do

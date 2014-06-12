@@ -1,9 +1,5 @@
 module AdLeads
   module Etag
-    def etag_path
-      # must be implemented in including class
-    end
-
     def refresh_etag!
       @etag = client.get(etag_path).headers['Etag']
     end
