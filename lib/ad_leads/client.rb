@@ -1,12 +1,3 @@
-require 'faraday'
-require 'json'
-require 'logger'
-
-require 'ad_leads/creative_group'
-require 'ad_leads/ad'
-require 'ad_leads/image'
-require 'ad_leads/campaign'
-
 module AdLeads
   class Client
     include AdLeads::Client::CreativeGroup

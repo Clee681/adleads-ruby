@@ -4,7 +4,7 @@ require 'pry'
 describe AdLeads::Client do
   let!(:client) { AdLeads::Client.new }
   let(:connection) { client.connection }
-  let(:token) { 'ba29c63f-985a-4c64-a1d4-9455a2f967ad' }
+  let(:token) { '55bd8390-9cd9-4b69-9966-1a10a9bc5591' }
   let(:file) { './spec/fixtures/test.jpg' }
 
   before do

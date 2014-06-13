@@ -1,15 +1,6 @@
 module AdLeads
   class Client
     module Campaign
-      # options = {
-      #   'name' => 'test',
-      #   'verticals' =>  82,
-      #   'offerIncentiveCategory' => 5,
-      #   'collectedFields' => 'firstname,lastname,email,companyname',
-      #   'budget' => 50,
-      #   'creativeGroups' => creative_group.id
-      # }
-
       def create_campaign(options)
         post '/campaigns', options
       end
