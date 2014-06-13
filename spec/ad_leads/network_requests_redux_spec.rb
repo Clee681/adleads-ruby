@@ -22,8 +22,8 @@ describe AdLeads::Client do
           'privacyPolicyUrl' => 'http://privacy_url'
         }
 
-        response = client.create_creative_group(options)
-        creative_id = JSON.parse(response.body)['data'].first
+        client.create_creative_group(options)
+        creative_id = client.last_response_id
 
         options = {
           'type' => 'Mobile',
@@ -32,13 +32,13 @@ describe AdLeads::Client do
           'bodyText' => 'this is mobile ad body copy'
         }
 
-        response = client.create_ad(creative_id, options)
-        ad_id = JSON.parse(response.body)['data'].first
+        client.create_ad(creative_id, options)
+        ad_id = client.last_response_id
 
         options = { 'type' => 'LogoImage' }
 
-        response = client.create_image(creative_id, ad_id, options)
-        image_id = JSON.parse(response.body)['data'].first
+        client.create_image(creative_id, ad_id, options)
+        image_id = client.last_response_id
         client.upload_image(creative_id, ad_id, image_id, file)
 
         options = {
@@ -50,14 +50,46 @@ describe AdLeads::Client do
           'creativeGroups' => creative_id
         }
 
-        response = client.create_campaign(options)
-        campaign_id = JSON.parse(response.body)['data'].first
+        client.create_campaign(options)
+        campaign_id = client.last_response_id
 
         client.verify_campaign(campaign_id)
         response = client.launch_campaign(campaign_id)
 
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)['result']).to eq true
+      end
+
+      it 'uploads logo image, creates campaign using logo image, verifies and launches ad campaign' do
+        options = {
+          creative_group: {
+            'name' => 'Creative Group Name',
+            'productName' =>  'amazing product',
+            'privacyPolicyUrl' => 'http://privacy_url'
+          },
+          ad: {
+            'type' => 'Mobile',
+            'name' =>  'Ad name',
+            'headerText' => 'get your ad on this phone today',
+            'bodyText' => 'this is mobile ad body copy'
+          },
+          image: { 'type' => 'LogoImage' },
+          file: file,
+          campaign: {
+            'name' => 'Campaign name',
+            'verticals' =>  82,
+            'offerIncentiveCategory' => 5,
+            'collectedFields' => 'firstname,lastname,email,companyname',
+            'budget' => 50
+        }}
+
+        client.create_complete_campaign(options)
+        campaign_id = client.last_response_id
+        client.verify_campaign(campaign_id)
+        client.launch_campaign(campaign_id)
+
+        expect(client.last_response.status).to eq(200)
+        expect(JSON.parse(client.last_response.body)['result']).to eq true
       end
     end
   end

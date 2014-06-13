@@ -6,6 +6,7 @@ module AdLeads
     include AdLeads::Client::Campaign
 
     attr_accessor *Configuration::VALID_CONFIG_KEYS
+    attr_reader :last_response
 
     def initialize(options={})
       merged_options = AdLeads.options.merge(options)
@@ -39,6 +40,10 @@ module AdLeads
 
     def post(path, params = {})
       request(:post, path, params)
+    end
+
+    def last_response_id
+      JSON.parse(last_response.body)['data'].first
     end
 
     private
@@ -96,7 +101,6 @@ module AdLeads
       # rescue Faraday::Error::TimeoutError, Timeout::Error => error
       # rescue Faraday::Error::ClientError, JSON::ParserError => error
     end
-
   end
 
   class ApiError < StandardError

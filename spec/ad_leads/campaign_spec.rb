@@ -5,10 +5,36 @@ describe AdLeads::Client::Campaign do
   let(:options) { {} }
   let(:http_success) { double(:http_success, status: 200) }
 
+  describe '#create_complete_campaign' do
+    let(:creative_opts) { {} }
+    let(:ad_opts) { {} }
+    let(:image_opts) { {} }
+    let(:file) { './spec/fixtures/test.jpg' }
+    let(:campaign_opts) { {} }
+    let(:complete_campaign_opts) {{
+      creative_group: creative_opts,
+      ad: ad_opts,
+      image: image_opts,
+      file: file,
+      campaign: campaign_opts
+    }}
+
+    it 'creates a creative group, ad, image, and campaign' do
+      client.stub(:last_response_id) { 1 }
+
+      expect(client).to receive(:create_creative_group).with(creative_opts)
+      expect(client).to receive(:create_ad).with(1, ad_opts)
+      expect(client).to receive(:create_image).with(1, 1, image_opts)
+      expect(client).to receive(:upload_image).with(1, 1, 1, file)
+      expect(client).to receive(:create_campaign).with(campaign_opts)
+      client.create_complete_campaign(1, complete_campaign_opts)
+    end
+  end
+
   describe '#create_campaign' do
     it 'creates a campaign' do
       expect(client).to receive(:post).with('/campaigns', options)
-      client.create_campaign(options)
+      client.create_campaign(1, options)
     end
   end
 

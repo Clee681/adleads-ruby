@@ -1,8 +1,22 @@
 module AdLeads
   class Client
     module Campaign
-      def create_campaign(options)
-        post '/campaigns', options
+      def create_campaign(creative_id, options)
+        post '/campaigns', options.merge(creativeGroups: creative_id)
+      end
+
+      def create_complete_campaign(options)
+        create_creative_group(options[:creative_group])
+        creative_id = self.last_response_id
+
+        create_ad(creative_id, options[:ad])
+        ad_id = self.last_response_id
+
+        create_image(creative_id, ad_id, options[:image])
+        image_id = self.last_response_id
+        upload_image(creative_id, ad_id, image_id, options[:file])
+
+        create_campaign(creative_id, options[:campaign])
       end
 
       def update_campaign(id, options)

@@ -10,6 +10,8 @@ describe AdLeads::Client do
 
   before { client.stub(:token) { token } }
 
+  it { should respond_to(:last_response) }
+
   describe '#connection' do
     let(:config_keys) { AdLeads::Configuration::VALID_CONFIG_KEYS }
 
@@ -61,6 +63,15 @@ describe AdLeads::Client do
           client.post('foo')
         }.to raise_error AdLeads::AuthError
       end
+    end
+  end
+
+  describe '#last_response_id' do
+    let(:last_response) { double :response, body: {'data' => [88]}.to_json }
+
+    it 'retrieves id from @last_response' do
+      client.stub(:last_response) { last_response }
+      expect(client.last_response_id).to eq 88
     end
   end
 end
